@@ -3,10 +3,13 @@ const connectDB = require("./config/database");
 const User = require("./models/user");
 const { validateSignUpData } = require("./utils/validation");
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
   try {
@@ -46,7 +49,9 @@ app.post("/login", async (req, res) => {
     const isValidPassword = await bcrypt.compare(password, user.password);
 
     if (isValidPassword) {
-      res.cookie("token", "qwertyuioplkjhgfdsazxcvbnm");
+      const token = await jwt.sign({ _id: user._id }, "saha007subham@1997");
+
+      res.cookie("token", token);
       res.send({ message: "Login Successfull!!!" });
     } else {
       throw new Error("Password is not correct.");
@@ -57,8 +62,23 @@ app.post("/login", async (req, res) => {
 });
 
 app.get("/profile", async (req, res) => {
+  const cookies = req.cookies;
+  const { token } = cookies;
+
+  if (!token) {
+    res.status(401).send({ message: "Please login again!!!" });
+  }
+
+  const jwtResponse = await jwt.verify(token, "saha007subham@1997");
+
+  const { _id } = jwtResponse;
+
+  //   console.log("Logged in user id is : " + _id);
+
+  const user = await User.findById(_id);
+
   try {
-    res.send({ message: "Welcome to your profile.." });
+    res.send({ userDetails: user });
   } catch (err) {
     res.status(400).send("Profile not found!!");
   }
