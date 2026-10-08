@@ -1,4 +1,4 @@
-const { Schema, Model } = require("mongoose");
+const { Schema, model } = require("mongoose");
 
 const connectionRequestSchema = new Schema(
   {
@@ -6,10 +6,12 @@ const connectionRequestSchema = new Schema(
       type: Schema.Types.ObjectId,
       required: true,
     },
+
     toUserId: {
       type: Schema.Types.ObjectId,
       required: true,
     },
+
     status: {
       type: String,
       required: true,
@@ -19,10 +21,20 @@ const connectionRequestSchema = new Schema(
       },
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+  },
 );
 
-const ConnectionRequestModel = new Model(
+connectionRequestSchema.index({ fromUserId: 1, toUserId: 1 });
+
+connectionRequestSchema.pre("save", async function () {
+  if (this.fromUserId.equals(this.toUserId)) {
+    throw new Error("You cannot send Connection Request to yourself!!");
+  }
+});
+
+const ConnectionRequestModel = model(
   "ConnectionRequest",
   connectionRequestSchema,
 );
