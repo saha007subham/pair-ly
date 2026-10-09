@@ -10,6 +10,7 @@ const connectionRequestSchema = new Schema(
 
     toUserId: {
       type: Schema.Types.ObjectId,
+      ref: "User", // reference to the user collection
       required: true,
     },
 
