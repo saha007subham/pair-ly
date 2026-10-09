@@ -4,6 +4,7 @@ const connectionRequestSchema = new Schema(
   {
     fromUserId: {
       type: Schema.Types.ObjectId,
+      ref: "User", // reference to the user collection
       required: true,
     },
 
