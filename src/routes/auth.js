@@ -49,7 +49,7 @@ authRouter.post("/login", async (req, res) => {
       });
 
       res.cookie("token", token);
-      res.send({ message: "Login Successfull!!!" });
+      res.send({ message: "Login Successfull!!!", user: user });
     } else {
       throw new Error("Password is not correct.");
     }
